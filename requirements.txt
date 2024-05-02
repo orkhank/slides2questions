@@ -1,0 +1,9 @@
+PyPDF2
+streamlit
+transformers
+torch
+# accelerate
+# torchvision
+# torchaudio
+pdfminer.six
+flash-attn

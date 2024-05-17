@@ -7,3 +7,10 @@ torch
 # torchaudio
 pdfminer.six
 flash-attn
+nltk
+scipy==1.12
+numpy
+gensim
+load_dotenv
+deepl
+googletrans==4.0.0rc1

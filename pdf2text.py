@@ -1,15 +1,13 @@
 from io import StringIO
+import sys
 from typing import BinaryIO, Container, Optional, Sequence, cast
 
-from pprint import pprint
-
-from pdfminer.high_level import (
-    extract_text,
+from pdfminer.pdfinterp import (
     PDFResourceManager,
-    TextConverter,
     PDFPageInterpreter,
-    PDFPage,
 )
+from pdfminer.converter import TextConverter
+from pdfminer.pdfpage import PDFPage
 from pdfminer.layout import LAParams
 from pdfminer.utils import FileOrName, open_filename
 import argparse

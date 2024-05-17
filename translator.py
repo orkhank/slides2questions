@@ -10,7 +10,9 @@ import googletrans  # type: ignore
 
 class Translator(ABC):
     @abstractmethod
-    def translate_text(self, text: str, target_language: str) -> str:
+    def translate_text(
+        self, text: str, source_language: Optional[str], target_language: str
+    ) -> str:
         pass
 
 
@@ -26,14 +28,36 @@ class DeepL(Translator):
 
         self.translator = deepl.Translator(self.auth_key)
 
-    def translate_text(self, text, target_language):
-        return self.translator.translate_text(text, target_lang=target_language)
+    def translate_text(
+        self,
+        text: str,
+        source_language: Optional[str] = None,
+        target_language: str = "EN-US",
+    ) -> str:
+        if (
+            source_language is not None
+            and source_language.upper() not in self.get_source_languages()
+        ):
+            raise ValueError(f"Language {source_language} is not supported")
+        if len(text) == 0:
+            raise ValueError("Text is empty")
+        if not isinstance(text, str):
+            raise ValueError("Text is not a string")
+
+        translated_text = self.translator.translate_text(
+            text, source_lang=source_language, target_lang=target_language
+        )
+
+        # sanity check
+        assert isinstance(translated_text, deepl.TextResult)
+
+        return translated_text.text
 
     def get_source_languages(self):
-        return self.translator.get_source_languages()
+        return {lang.code for lang in self.translator.get_source_languages()}
 
     def get_target_languages(self):
-        return self.translator.get_target_languages()
+        return {lang.code for lang in self.translator.get_target_languages()}
 
     def get_usage(self):
         return self.translator.get_usage()
@@ -43,7 +67,9 @@ class Google(Translator):
     def __init__(self):
         self.translator = googletrans.Translator()
 
-    def translate_text(self, text: str, target_language: str = "en") -> str:
+    def translate_text(
+        self, text: str, source_language: str = "auto", target_language: str = "en"
+    ) -> str:
         if target_language not in googletrans.LANGUAGES:
             raise ValueError(f"Language {target_language} is not supported")
         if len(text) == 0:
@@ -51,7 +77,9 @@ class Google(Translator):
         if not isinstance(text, str):
             raise ValueError("Text is not a string")
 
-        translated_text = self.translator.translate(text, dest=target_language)
+        translated_text = self.translator.translate(
+            text, src=source_language, dest=target_language
+        )
 
         # sanity check
         assert isinstance(translated_text, googletrans.models.Translated)

@@ -16,11 +16,25 @@ import argparse
 def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Extract text from PDF")
     parser.add_argument("pdf", help="Path to PDF file")
+    parser.add_argument("--password", help="Password for encrypted PDFs", default="")
+    parser.add_argument(
+        "--page-numbers",
+        help="List of zero-indexed page numbers to extract",
+        nargs="+",
+        type=int,
+    )
+    parser.add_argument(
+        "--maxpages",
+        help="The maximum number of pages to parse",
+        type=int,
+        default=0,
+    )
     return parser.parse_args(argv)
 
 
 def extract_text_in_pages(
     pdf_file: FileOrName,
+    *,
     password: str = "",
     page_numbers: Optional[Container[int]] = None,
     maxpages: int = 0,
@@ -72,14 +86,17 @@ def extract_text_in_pages(
 def main(argv: Optional[Sequence[str]] = None) -> int:
     args = get_args(argv)
 
-    print(extract_text_in_pages(args.pdf))
-    for page, text in extract_text_in_pages(args.pdf).items():
+    for page, text in extract_text_in_pages(
+        args.pdf,
+        password=args.password,
+        page_numbers=args.page_numbers,
+        maxpages=args.maxpages,
+    ).items():
         print(f"Page {page + 1}:")
-        print(text)
-        print()
+        print(text, end="\n\n")
 
     return 0
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

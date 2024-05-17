@@ -93,6 +93,11 @@ class Google(Translator):
         return self.translator.detect(text).lang
 
 
+def get_language(text: str) -> str:
+    translator = Google()
+    return translator.detect_language(text)
+
+
 def main():
     translator = DeepL()
     print(translator.translate_text("Hello, how are you?", "DE"))

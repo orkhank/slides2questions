@@ -7,7 +7,7 @@ import functools
 @functools.lru_cache(maxsize=1)
 def get_llama_pipeline() -> transformers.pipelines.TextGenerationPipeline:
     model_id = "meta-llama/Meta-Llama-3-8B"
-    return transformers.pipeline(
+    return transformers.pipeline(  # type: ignore
         "text-generation",
         model=model_id,
         model_kwargs={
@@ -24,7 +24,7 @@ def get_llama_pipeline() -> transformers.pipelines.TextGenerationPipeline:
 @functools.lru_cache(maxsize=1)
 def get_gemma_pipeline() -> transformers.pipelines.TextGenerationPipeline:
     model = "google/gemma-1.1-2b-it"
-    return transformers.pipeline(
+    return transformers.pipeline(  # type: ignore
         "text-generation",
         model=model,
         model_kwargs={
@@ -60,10 +60,10 @@ def get_gemma_response(
     outputs = pipeline(
         prompt,
         max_new_tokens=max_new_tokens,
-        # do_sample=do_sample,
-        # temperature=temperature,
-        # top_k=top_k,
-        # top_p=top_p,
+        do_sample=do_sample,
+        temperature=temperature,
+        top_k=top_k,
+        top_p=top_p,
         streamer=transformers.TextStreamer(pipeline.tokenizer) if streamer else None,
     )
     return outputs[0]["generated_text"][len(prompt) :]

@@ -75,11 +75,6 @@ def extract_and_translate_topics(
     return guessed_topics
 
 
-def cache_topics(docs: List[Document], guessed_topics: List[str]) -> None:
-    # create a file name based on hash of the text
-    cache_file_name = f"topics_{hash(''.join(get_page_contents(docs)))}.txt"
-
-
 def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     """
     Parse command line arguments.
@@ -236,6 +231,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
 
     # save the questions and answers to a file
+    export_questions_and_answers(guessed_topics, questions, answers)
+
+    return 0
+
+
+def export_questions_and_answers(guessed_topics, questions, answers):
     with open("questions_and_answers.txt", "w", encoding="utf-8") as f:
         for i, (topic, question_list) in enumerate(zip(guessed_topics, questions)):
             f.write(f"Topic {i + 1}: {topic}\n")
@@ -243,8 +244,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 f.write(f"Question {j + 1}: {question}\n")
                 f.write(f"Answer: {answers[i][j]}\n")
                 f.write("\n")
-
-    return 0
 
 
 def generate_multi_choice_answers(

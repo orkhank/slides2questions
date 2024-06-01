@@ -27,55 +27,6 @@ from utils import (
 from rag import get_retrieval_qa_chain, execute_query, process_llm_response
 
 
-def extract_and_translate_topics(
-    docs: List[Document],
-    *,
-    number_of_topics: int = 10,
-    passes_over_corpus: int = 5,
-    verbose: bool = False,
-) -> List[str]:
-    page_contents = [page_content for page_content in get_page_contents(docs)]
-
-    # translate text to English if it is not already in English
-    if (source_language := get_language("\n".join(page_contents))) != "english":
-        translator = GoogleTranslator()
-        translated_docs = [
-            translator.translate(doc, target="en")
-            for doc in tqdm(
-                page_contents,
-                desc=f"Translating text from {source_language.capitalize()} to English",
-                unit="page",
-                len=len(page_contents),
-            )
-        ]
-        page_contents = translated_docs
-    elif verbose:
-        print("Text is already in English (no translation needed)")
-
-    # extract topics from text
-    weighted_phrases = extract_topics_in_weighted_phrases(
-        page_contents,
-        number_of_topics=number_of_topics,
-        passes_over_corpus=passes_over_corpus,
-    )
-
-    # convert topics to human-readable format
-    guessed_topics = []
-    for i, weighted_phrase in enumerate(weighted_phrases):
-        guessed_topic = guess_topic_from_weighted_phrases(
-            weighted_phrase, guessed_topics
-        )
-        guessed_topic = guessed_topic.replace("\n", "")
-        if verbose:
-            print(f"Educated guess for topic {i + 1}: {guessed_topic}")
-        guessed_topics.append(guessed_topic)
-
-    # TODO: cache topics
-    # cache_topics(docs, guessed_topics)
-
-    return guessed_topics
-
-
 def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     """
     Parse command line arguments.
@@ -186,55 +137,53 @@ def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     return args
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
-    # this prevents OpenMP from crashing
-    os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+def extract_and_translate_topics(
+    docs: List[Document],
+    *,
+    number_of_topics: int = 10,
+    passes_over_corpus: int = 5,
+    verbose: bool = False,
+) -> List[str]:
+    page_contents = [page_content for page_content in get_page_contents(docs)]
 
-    args = get_args(argv)
+    # translate text to English if it is not already in English
+    if (source_language := get_language("\n".join(page_contents))) != "english":
+        translator = GoogleTranslator()
+        translated_docs = [
+            translator.translate(doc, target="en")
+            for doc in tqdm(
+                page_contents,
+                desc=f"Translating text from {source_language.capitalize()} to English",
+                unit="page",
+                len=len(page_contents),
+            )
+        ]
+        page_contents = translated_docs
+    elif verbose:
+        print("Text is already in English (no translation needed)")
 
-    # extract text from PDF
-    pdf_loader = PyPDFDirectoryLoader(
-        args.pdf_directory,
-        glob="*.pdf",
-        extract_images=args.extract_text_from_images,
-    )
-    docs = pdf_loader.load()
-
-    if args.verbose:
-        # print information about the PDF
-        print(f"Number of pages: {len(docs)}")
-
-    guessed_topics = extract_and_translate_topics(
-        docs,
-        number_of_topics=args.number_of_topics,
-        passes_over_corpus=args.passes_over_corpus,
-        verbose=args.verbose,
-    )
-
-    # save text to a dataset
-    retrieval_qa_chain = get_retrieval_qa_chain(docs)
-
-    questions = generate_questions(
-        guessed_topics,
-        retrieval_qa_chain,
-        verbose=args.verbose,
+    # extract topics from text
+    weighted_phrases = extract_topics_in_weighted_phrases(
+        page_contents,
+        number_of_topics=number_of_topics,
+        passes_over_corpus=passes_over_corpus,
     )
 
-    # generate the answers to the questions
-    answers = generate_multi_choice_answers(
-        guessed_topics,
-        questions,
-        retrieval_qa_chain,
-        min_number_of_answers=args.min_answers,
-        max_number_of_answers=args.max_answers,
-        number_of_correct_answers=args.correct_answers,
-        verbose=args.verbose,
-    )
+    # convert topics to human-readable format
+    guessed_topics = []
+    for i, weighted_phrase in enumerate(weighted_phrases):
+        guessed_topic = guess_topic_from_weighted_phrases(
+            weighted_phrase, guessed_topics
+        )
+        guessed_topic = guessed_topic.replace("\n", "")
+        if verbose:
+            print(f"Educated guess for topic {i + 1}: {guessed_topic}")
+        guessed_topics.append(guessed_topic)
 
-    # save the questions and answers to a file
-    export_questions_and_answers(guessed_topics, questions, answers)
+    # TODO: cache topics
+    # cache_topics(docs, guessed_topics)
 
-    return 0
+    return guessed_topics
 
 
 def generate_multi_choice_answers(
@@ -316,6 +265,57 @@ def generate_questions(
 
     # how to query pdf dataset ? https://www.youtube.com/watch?v=5Ghv-F1wF_0
     # how to identify topics from text ? https://www.youtube.com/watch?v=ZkAFJwi-G98
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    # this prevents OpenMP from crashing
+    os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
+    args = get_args(argv)
+
+    # extract text from PDF
+    pdf_loader = PyPDFDirectoryLoader(
+        args.pdf_directory,
+        glob="*.pdf",
+        extract_images=args.extract_text_from_images,
+    )
+    docs = pdf_loader.load()
+
+    if args.verbose:
+        # print information about the PDF
+        print(f"Number of pages: {len(docs)}")
+
+    guessed_topics = extract_and_translate_topics(
+        docs,
+        number_of_topics=args.number_of_topics,
+        passes_over_corpus=args.passes_over_corpus,
+        verbose=args.verbose,
+    )
+
+    # save text to a dataset
+    retrieval_qa_chain = get_retrieval_qa_chain(docs)
+
+    questions = generate_questions(
+        guessed_topics,
+        retrieval_qa_chain,
+        verbose=args.verbose,
+    )
+
+    # generate the answers to the questions
+    answers = generate_multi_choice_answers(
+        guessed_topics,
+        questions,
+        retrieval_qa_chain,
+        min_number_of_answers=args.min_answers,
+        max_number_of_answers=args.max_answers,
+        number_of_correct_answers=args.correct_answers,
+        verbose=args.verbose,
+    )
+
+    # save the questions and answers to a file
+    export_questions_and_answers(guessed_topics, questions, answers)
+
+    return 0
 
 
 if __name__ == "__main__":

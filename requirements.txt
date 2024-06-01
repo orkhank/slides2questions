@@ -16,4 +16,16 @@ deepl
 googletrans==4.0.0rc1
 spacy==3.7.4 # for more info see https://spacy.io/usage#quickstart
 langchain
+langchain_community
 faiss-cpu
+PyPDF2
+rapidocr-onnxruntime
+pypdf
+langchain-openai
+sentence_transformers
+langchain-openai
+google-generativeai 
+langchain-google-genai
+streamlit
+beautifulsoup4
+Markdown

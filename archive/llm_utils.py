@@ -67,3 +67,4 @@ def get_gemma_response(
         streamer=transformers.TextStreamer(pipeline.tokenizer) if streamer else None,
     )
     return outputs[0]["generated_text"][len(prompt) :]
+

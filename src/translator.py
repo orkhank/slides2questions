@@ -90,12 +90,16 @@ class Google(Translator):
         return googletrans.LANGUAGES
 
     def detect_language(self, text: str) -> str:
-        return self.translator.detect(text).lang
+        translated_text = self.translator.translate(text[:min(1000, len(text))])
+        return translated_text.src
 
 
 def get_language(text: str) -> str:
     translator = Google()
-    return translator.detect_language(text)
+    language = translator.detect_language(text)
+
+    # map code to full language name
+    return googletrans.LANGUAGES[language]
 
 
 def main():

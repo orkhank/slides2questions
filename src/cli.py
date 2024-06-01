@@ -18,6 +18,7 @@ from langchain_core.documents.base import Document
 
 from translator import get_language
 from utils import (
+    export_questions_and_answers,
     extract_answers,
     extract_questions,
     get_page_contents,
@@ -234,16 +235,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     export_questions_and_answers(guessed_topics, questions, answers)
 
     return 0
-
-
-def export_questions_and_answers(guessed_topics, questions, answers):
-    with open("questions_and_answers.txt", "w", encoding="utf-8") as f:
-        for i, (topic, question_list) in enumerate(zip(guessed_topics, questions)):
-            f.write(f"Topic {i + 1}: {topic}\n")
-            for j, question in enumerate(question_list):
-                f.write(f"Question {j + 1}: {question}\n")
-                f.write(f"Answer: {answers[i][j]}\n")
-                f.write("\n")
 
 
 def generate_multi_choice_answers(

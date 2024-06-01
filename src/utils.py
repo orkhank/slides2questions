@@ -90,6 +90,16 @@ def extract_questions(llm_response: str, negative_response: str) -> List[str]:
     ]
 
 
+def export_questions_and_answers(guessed_topics, questions, answers):
+    with open("questions_and_answers.txt", "w", encoding="utf-8") as f:
+        for i, (topic, question_list) in enumerate(zip(guessed_topics, questions)):
+            f.write(f"Topic {i + 1}: {topic}\n")
+            for j, question in enumerate(question_list):
+                f.write(f"Question {j + 1}: {question}\n")
+                f.write(f"Answer: {answers[i][j]}\n")
+                f.write("\n")
+
+
 def extract_answers(llm_response: str, negative_response: str) -> List[str]:
     """
     Extract answers from the LLM response.

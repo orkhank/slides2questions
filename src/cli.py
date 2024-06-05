@@ -269,6 +269,67 @@ def generate_questions(
     # how to identify topics from text ? https://www.youtube.com/watch?v=ZkAFJwi-G98
 
 
+def generate_correct_answers(
+    guessed_topics,
+    questions,
+    answers,
+    number_of_correct_answers,
+    retrieval_qa_chain,
+    *,
+    verbose=False,
+) -> List[List[Optional[str]]]:
+    correct_answers = []
+
+    negative_response = "I can't"
+
+    for i, (guessed_topic, question_list, answer_list) in enumerate(
+        zip(guessed_topics, questions, answers)
+    ):
+        if not question_list:
+            # no questions were generated for this topic
+            correct_answers.append([])
+            continue
+
+        correct_answer_list = []
+        correct_answers.append(correct_answer_list)
+
+        for j, (question, answers_to_question) in enumerate(
+            zip(question_list, answer_list)
+        ):
+            if not answers_to_question:
+                # no answers were generated for this question
+                correct_answer_list.append(None)
+                continue
+
+            # generate the correct answers to the question
+            query = (
+                f"Choose the correct answers to the following question about {guessed_topic!r}. "
+                f"If you none of the answers are correct reply with {negative_response!r}. "
+                "Otherwise, provide the correct answers chosen from the list of answers. "
+                "Respond with only the letter corresponding to the correct answers (for example, 'A, B'; 'A'; 'B' etc.). "
+                f"Make sure to provide **only {number_of_correct_answers} correct answers**. "
+                "Do not include the question nor the full answers. "
+                f"Question: {question}"
+                f"Answers: {answers_to_question}"
+            )
+            response = execute_query(retrieval_qa_chain, query)
+
+            # extract the correct answers
+            if negative_response.lower() in response["result"].lower():
+                correct_answer = None
+            else:
+                correct_answer = response["result"]
+
+            if verbose:
+                print(f"Question {j + 1}: {question}")
+                print(f"Response: {response['result']}")
+                print(f"Correct answer: {correct_answer}")
+
+            correct_answer_list.append(correct_answer)
+
+    return correct_answers
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     # this prevents OpenMP from crashing
     os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
@@ -314,8 +375,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         verbose=args.verbose,
     )
 
+    correct_answers = generate_correct_answers(
+        guessed_topics,
+        questions,
+        answers,
+        args.correct_answers,
+        retrieval_qa_chain,
+        verbose=args.verbose,
+    )
+
     # save the questions and answers to a file
-    export_questions_and_answers(guessed_topics, questions, answers)
+    export_questions_and_answers(guessed_topics, questions, answers, correct_answers)
 
     return 0
 

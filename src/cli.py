@@ -84,6 +84,15 @@ def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
 
     # multi choice question options
     multi_choice_options = parser.add_argument_group("Multiple choice question options")
+    # TODO: add option to generate a fixed number of questions for each topic
+    # multi_choice_options.add_argument(
+    #     "--max-questions",
+    #     "-q",
+    #     help="Maximum number of questions to generate for each topic",
+    #     type=int,
+    #     default=5,
+    # )
+
     multi_choice_options.add_argument(
         "--max-answers",
         "-m",

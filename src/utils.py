@@ -1,6 +1,6 @@
 import functools
 import re
-from typing import Any, Dict, Generator, List, Optional
+from typing import Generator, List, Optional
 from langchain_core.documents.base import Document
 import google.generativeai as genai
 from nltk.tokenize import sent_tokenize
@@ -91,14 +91,53 @@ def extract_questions(llm_response: str, negative_response: str) -> List[str]:
     ]
 
 
-def export_questions_and_answers(guessed_topics, questions, answers):
-    with open("questions_and_answers.txt", "w", encoding="utf-8") as f:
-        for i, (topic, question_list) in enumerate(zip(guessed_topics, questions)):
-            f.write(f"Topic {i + 1}: {topic}\n")
-            for j, question in enumerate(question_list):
-                f.write(f"Question {j + 1}: {question}\n")
-                f.write(f"Answer: {answers[i][j]}\n")
-                f.write("\n")
+def export_questions_and_answers(
+    guessed_topics: List[str],
+    questions: List[List[str]],
+    answers: List[List[List[str]]],
+    correct_answers: List[List[Optional[str]]],
+    *,
+    file_path: str = "questions_and_answers.json",
+) -> None:
+    """
+    Export the questions and answers to a json file.
+
+    Args
+    ----
+    guessed_topics (List[str]): List of guessed topics.
+    questions (List[List[str]]): List of questions.
+    answers (List[List[List[str]]): List of answers.
+    correct_answers (List[List[Optional[str]]]): List of correct answers.
+    file_path (str): File path.
+    """
+    import json
+
+    data = []
+    for topic, question_list, answer_list, correct_answer_list in zip(
+        guessed_topics, questions, answers, correct_answers
+    ):
+        if not question_list:
+            continue
+
+        data.append(
+            {
+                "topic": topic.strip(),
+                "questions": [
+                    {
+                        "question": question.strip(),
+                        "answers": answers_to_question,
+                        "correct_answer": correct_answer.strip(),
+                    }
+                    for question, answers_to_question, correct_answer in zip(
+                        question_list, answer_list, correct_answer_list
+                    )
+                    if answers_to_question and correct_answer is not None
+                ],
+            }
+        )
+
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4)
 
 
 def extract_answers(

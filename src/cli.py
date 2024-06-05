@@ -111,12 +111,6 @@ def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
 
     # validate arguments
 
-    if args.correct_answers > args.max_answers:
-        parser.error(
-            "Number of correct answers must be less than "
-            "or equal to the maximum number of answers"
-        )
-
     if args.correct_answers < 1 or args.max_answers < 1 or args.min_answers < 1:
         parser.error(
             "Number of correct answers, maximum number of answers, and minimum number of answers must be at least 1"

@@ -154,3 +154,4 @@ data/
 /.venv_windows
 /.vscode
 *.txt
+*.json

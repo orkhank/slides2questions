@@ -80,8 +80,10 @@ def extract_questions(llm_response: str, negative_response: str) -> List[str]:
     # remove newlines
     llm_response_no_boiler_plate = llm_response_no_markdown.replace(":\n\n", ".\n")
 
-    # remove "(...)\n" from text
-    llm_response_no_references = re.sub(r"\(.*\)\n", "", llm_response_no_boiler_plate)
+    # remove "(...)" at the end of lines
+    llm_response_no_references = re.sub(
+        r"\(.*\) *\n+", "", llm_response_no_boiler_plate
+    )
 
     return [
         sentence

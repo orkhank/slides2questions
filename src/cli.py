@@ -157,6 +157,8 @@ def extract_and_translate_topics(
         print("Text is already in English (no translation needed)")
 
     # extract topics from text
+    if verbose:
+        print("Extracting topics from text")
     weighted_phrases = extract_topics_in_weighted_phrases(
         page_contents,
         number_of_topics=number_of_topics,
@@ -228,6 +230,7 @@ def generate_multi_choice_answers(
             )
             if verbose:
                 print(f"Question {j + 1}: {question}")
+                print(f"Response: {response['result']}")
                 print(f"Multiple choice answers: {answer}")
             answer_list.append(answer)
 

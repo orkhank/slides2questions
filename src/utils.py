@@ -3,6 +3,7 @@ import re
 from typing import Any, Dict, Generator, List, Optional
 from langchain_core.documents.base import Document
 import google.generativeai as genai
+from nltk.tokenize import sent_tokenize
 
 
 @functools.lru_cache
@@ -73,8 +74,6 @@ def extract_questions(llm_response: str, negative_response: str) -> List[str]:
     if negative_response.lower() in llm_response.lower():
         return []
 
-    from nltk.tokenize import sent_tokenize
-
     llm_response_no_markdown = remove_markdown(llm_response)
 
     # remove newlines
@@ -130,9 +129,6 @@ def extract_answers(
     if negative_response.lower() in llm_response.lower():
         return []
 
-    from nltk.tokenize import sent_tokenize
-
-    # remove markdown
     llm_response_no_markdown = remove_markdown(llm_response)
 
     answers = [

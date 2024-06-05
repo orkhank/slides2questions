@@ -181,15 +181,15 @@ def extract_and_translate_topics(
 
 
 def generate_multi_choice_answers(
-    guessed_topics,
-    questions,
-    retrieval_qa_chain,
+    guessed_topics: List[str],
+    questions: List[List[str]],
+    retrieval_query_chain,
     *,
-    min_number_of_answers=4,
-    max_number_of_answers=5,
-    number_of_correct_answers=1,
-    verbose=False,
-):
+    min_number_of_answers: int = 4,
+    max_number_of_answers: int = 5,
+    number_of_correct_answers: int = 1,
+    verbose: bool = False,
+) -> List[List[List[str]]]:
     answers = []
 
     negative_response = (
@@ -218,9 +218,9 @@ def generate_multi_choice_answers(
                 "Make sure the answers start with a capital letter (for example, 'A) Answer', 'B) Answer', etc.). "
                 f"Question: {question}"
             )
-            response = execute_query(retrieval_qa_chain, query)
             # answer = extract_answers(response["result"], negative_response)
             answer = response["result"]
+            response = execute_query(retrieval_query_chain, query)
             if verbose:
                 print(f"Question {j + 1}: {question}")
                 print(f"Multiple choice answers: {answer}")

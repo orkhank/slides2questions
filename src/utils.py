@@ -102,15 +102,24 @@ def export_questions_and_answers(guessed_topics, questions, answers):
                 f.write("\n")
 
 
-def extract_answers(llm_response: str, negative_response: str) -> List[str]:
+def extract_answers(
+    llm_response: str,
+    *,
+    negative_response: str,
+    max_number_of_answers,
+) -> List[str]:
     """
     Extract answers from the LLM response.
 
     Args
     ----
     llm_response (str): LLM response.
-    negative_response (str): Text to
+    negative_response (str): Text to\
         check if the response is negative.
+    max_number_of_answers (int): Maximum number of answers.
+    verbose (bool, optional):\
+        Whether to print the extracted answers.\
+        By default False.
 
     Returns
     -------
@@ -126,10 +135,15 @@ def extract_answers(llm_response: str, negative_response: str) -> List[str]:
     # remove markdown
     llm_response_no_markdown = remove_markdown(llm_response)
 
-    # remove newlines
-    llm_response_no_markdown = llm_response_no_markdown.replace(":\n\n", ".\n")
+    answers = [
+        sentence.strip()
+        for sentence in llm_response_no_markdown.split("\n")
+        # add sentence if it starts with a letter and parantheses
+        if re.match(r"^\s*[a-zA-Z]\s*\)", sentence)
+    ]
 
-    return [sentence for sentence in sent_tokenize(llm_response_no_markdown)]
+    # return the first max_number_of_answers answers
+    return answers[: min(max_number_of_answers, len(answers))]
 
 
 def get_page_contents(documents: List[Document]) -> Generator[str, None, None]:

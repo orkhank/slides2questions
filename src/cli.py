@@ -62,7 +62,8 @@ def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         "--extract-text-from-images",
         "-e",
         action="store_true",
-        help="Extract text from images in the PDF (slower, requires `pip install rapidocr-onnxruntime`)",
+        help="Extract text from images in the PDF (slower, "
+        "requires `pip install rapidocr-onnxruntime`)",
     )
     lda_options = parser.add_argument_group("LDA options")
     lda_options.add_argument(
@@ -122,7 +123,8 @@ def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
 
     if args.correct_answers < 1 or args.max_answers < 1 or args.min_answers < 1:
         parser.error(
-            "Number of correct answers, maximum number of answers, and minimum number of answers must be at least 1"
+            "Number of correct answers, maximum number of answers, "
+            "and minimum number of answers must be at least 1"
         )
 
     if args.correct_answers > args.min_answers:
@@ -217,16 +219,19 @@ def generate_multi_choice_answers(
 
         for j, question in enumerate(question_list):
             query = (
-                f"Your task is to generate multiple choice answers for the following question about {topic!r}. "
-                f"The multiple choice answers should be relevant to the question, "
+                "Your task is to generate multiple choice answers for "
+                f"the following question about {topic!r}. "
+                "The multiple choice answers should be relevant to the question, "
                 f"but only **{number_of_correct_answers}** should be correct. "
                 f"If you can't generate any answers reply with {negative_response!r}. "
                 f"Make sure to provide **only {number_of_correct_answers} correct answers**."
                 "Do not include the question itself. "
-                f"Make sure to provide at least {min_number_of_answers} and at most **{max_number_of_answers}** answers. "
+                f"Make sure to provide at least {min_number_of_answers} and "
+                f"at most **{max_number_of_answers}** answers. "
                 # "If the question is too general, try to provide answers that are specific. "
                 # "If the question is too specific, try to provide answers that are general. "
-                "Make sure the answers start with a capital letter (for example, 'A) Answer', 'B) Answer', etc.). "
+                "Make sure the answers start with a capital letter "
+                "(for example, 'A) Answer', 'B) Answer', etc.). "
                 "Try to provide answers that are not too similar to each other. "
                 "The generated answers should not be too long or verbose. "
                 f"Question: {question}"
@@ -315,7 +320,8 @@ def generate_correct_answers(
                 f"Choose the correct answers to the following question about {guessed_topic!r}. "
                 f"If you none of the answers are correct reply with {negative_response!r}. "
                 "Otherwise, provide the correct answers chosen from the list of answers. "
-                "Respond with only the letter corresponding to the correct answers (for example, 'A, B'; 'A'; 'B' etc.). "
+                "Respond with only the letter corresponding to the correct answers "
+                "(for example, 'A, B'; 'A'; 'B' etc.). "
                 f"Make sure to provide **only {number_of_correct_answers} correct answers**. "
                 "Do not include the question nor the full answers. "
                 f"Question: {question}"

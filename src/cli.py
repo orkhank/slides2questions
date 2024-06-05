@@ -291,8 +291,8 @@ def generate_correct_answers(
 
     negative_response = "I can't"
 
-    for i, (guessed_topic, question_list, answer_list) in enumerate(
-        zip(guessed_topics, questions, answers)
+    for guessed_topic, question_list, answer_list in zip(
+        guessed_topics, questions, answers
     ):
         if not question_list:
             # no questions were generated for this topic

@@ -36,9 +36,6 @@ def get_google_ai_model(
 
 
 def remove_markdown(text: str) -> str:
-    from bs4 import BeautifulSoup
-    from markdown import markdown
-
     """
     Remove markdown from text.
 
@@ -51,6 +48,10 @@ def remove_markdown(text: str) -> str:
     str
         Text without markdown.
     """
+
+    from bs4 import BeautifulSoup
+    from markdown import markdown
+
     html = markdown(text)
     return "".join(BeautifulSoup(html, "html.parser").findAll(string=True))
 

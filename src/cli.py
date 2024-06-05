@@ -220,9 +220,12 @@ def generate_multi_choice_answers(
                 "The generated answers should not be too long or verbose. "
                 f"Question: {question}"
             )
-            # answer = extract_answers(response["result"], negative_response)
-            answer = response["result"]
             response = execute_query(retrieval_query_chain, query)
+            answer = extract_answers(
+                response["result"],
+                negative_response=negative_response,
+                max_number_of_answers=max_number_of_answers,
+            )
             if verbose:
                 print(f"Question {j + 1}: {question}")
                 print(f"Multiple choice answers: {answer}")

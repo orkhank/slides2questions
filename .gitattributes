@@ -1,2 +1,7 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Files that should be treated as text
+*.txt text
+*.py text
+*.md text

@@ -269,11 +269,9 @@ def generate_questions(
             f"If you can't generate any questions reply with {negative_response!r}: {guessed_topic}"
         )
         response = execute_query(retrieval_qa_chain, query)
+        extracted_questions = extract_questions(response["result"], negative_response)
         if verbose:
             process_llm_response(response)
-            extracted_questions = extract_questions(
-                response["result"], negative_response
-            )
             print(f"Extracted questions: {extracted_questions}")
         questions.append(extracted_questions)
 

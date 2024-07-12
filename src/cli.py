@@ -12,6 +12,7 @@ from topic_extraction import extract_topics_in_weighted_phrases
 from deep_translator import GoogleTranslator
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_core.documents.base import Document
+from dotenv import load_dotenv
 
 from translator import get_language
 from utils import (
@@ -347,6 +348,7 @@ def generate_correct_answers(
 def main(argv: Optional[Sequence[str]] = None) -> int:
     # this prevents OpenMP from crashing
     os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+    load_dotenv()
 
     args = get_args(argv)
 

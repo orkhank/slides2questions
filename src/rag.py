@@ -7,7 +7,7 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings, GoogleGenerativ
 from langchain.chains.retrieval_qa.base import BaseRetrievalQA, RetrievalQA
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_core.documents.base import Document
-from load_dotenv import load_dotenv
+from dotenv import load_dotenv
 
 import textwrap
 

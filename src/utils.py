@@ -4,6 +4,7 @@ from textwrap import dedent
 from typing import Generator, List, Optional
 
 import google.generativeai as genai
+import googletrans  # type: ignore
 import nltk
 from langchain_core.documents.base import Document
 from nltk.tokenize import sent_tokenize
@@ -251,3 +252,11 @@ def guess_topic_from_weighted_phrases(
     response = model.generate_content(prompt)
 
     return response.text
+
+
+def get_language(text: str) -> str:
+    translator = googletrans.Translator()
+    language = translator.translate(text[: min(1000, len(text))]).src
+
+    # map language code to full name
+    return googletrans.LANGUAGES[language]

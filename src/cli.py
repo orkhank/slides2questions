@@ -15,11 +15,11 @@ from tqdm import tqdm
 
 from rag import execute_query, get_retrieval_qa_chain, process_llm_response
 from topic_extraction import extract_topics_in_weighted_phrases
-from translator import get_language
 from utils import (
     export_questions_and_answers,
     extract_answers,
     extract_questions,
+    get_language,
     get_page_contents,
     guess_topic_from_weighted_phrases,
 )

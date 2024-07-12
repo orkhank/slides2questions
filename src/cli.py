@@ -10,9 +10,6 @@ from typing import List, Optional, Sequence
 from tqdm import tqdm
 from topic_extraction import extract_topics_in_weighted_phrases
 from deep_translator import GoogleTranslator
-
-# from translator import DeepL, get_language
-
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_core.documents.base import Document
 

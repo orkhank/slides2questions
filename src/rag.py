@@ -48,7 +48,6 @@ def get_retrieval_qa_chain(documents: List[Document]) -> BaseRetrievalQA:
         request_options=None,
     )
 
-    # create a database from the documents in batches of 100
     vector_store = create_vector_store(texts, embeddings)
 
     retrieval_engine = vector_store.as_retriever(search_kwargs={"k": 3})
@@ -70,7 +69,6 @@ def get_retrieval_qa_chain(documents: List[Document]) -> BaseRetrievalQA:
 
 
 def wrap_text_preserve_newlines(text: str, width: int = 110) -> str:
-    # Split the input text into lines based on newline characters
     lines = text.split("\n")
 
     # Wrap each line individually

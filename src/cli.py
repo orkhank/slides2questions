@@ -7,12 +7,13 @@ import os
 import sys
 from typing import List, Optional, Sequence
 
-from tqdm import tqdm
 from deep_translator import GoogleTranslator
+from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_core.documents.base import Document
-from dotenv import load_dotenv
+from tqdm import tqdm
 
+from rag import execute_query, get_retrieval_qa_chain, process_llm_response
 from topic_extraction import extract_topics_in_weighted_phrases
 from translator import get_language
 from utils import (
@@ -22,7 +23,6 @@ from utils import (
     get_page_contents,
     guess_topic_from_weighted_phrases,
 )
-from rag import get_retrieval_qa_chain, execute_query, process_llm_response
 
 
 def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
@@ -75,14 +75,16 @@ def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         "--passes-over-corpus",
         "-p",
         help="Number of passes over the corpus when training the LDA model "
-        "(higher values may improve the quality of the topics but also increase "
-        "the training time)",
+        "(higher values may improve the quality of the topics but also "
+        "increase the training time)",
         type=int,
         default=5,
     )
 
     # multi choice question options
-    multi_choice_options = parser.add_argument_group("Multiple choice question options")
+    multi_choice_options = parser.add_argument_group(
+        "Multiple choice question options"
+    )
     # TODO: add option to generate a fixed number of questions for each topic
     # multi_choice_options.add_argument(
     #     "--max-questions",
@@ -119,7 +121,11 @@ def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
 
     # validate arguments
 
-    if args.correct_answers < 1 or args.max_answers < 1 or args.min_answers < 1:
+    if (
+        args.correct_answers < 1
+        or args.max_answers < 1
+        or args.min_answers < 1
+    ):
         parser.error(
             "Number of correct answers, maximum number of answers, "
             "and minimum number of answers must be at least 1"
@@ -150,7 +156,9 @@ def extract_and_translate_topics(
     page_contents = [page_content for page_content in get_page_contents(docs)]
 
     # translate text to English if it is not already in English
-    if (source_language := get_language("\n".join(page_contents))) != "english":
+    if (
+        source_language := get_language("\n".join(page_contents))
+    ) != "english":
         page_contents = translate_page_contents(page_contents, source_language)
     elif verbose:
         print("Text is already in English (no translation needed)")
@@ -187,7 +195,8 @@ def translate_page_contents(page_contents, source_language):
         translator.translate(doc, target="en")
         for doc in tqdm(
             page_contents,
-            desc=f"Translating text from {source_language.capitalize()} to English",
+            desc=f"Translating text from {source_language.capitalize()} "
+            "to English",
             unit="page",
         )
     ]
@@ -223,18 +232,22 @@ def generate_multi_choice_answers(
             query = (
                 "Your task is to generate multiple choice answers for "
                 f"the following question about {topic!r}. "
-                "The multiple choice answers should be relevant to the question, "
-                f"but only **{number_of_correct_answers}** should be correct. "
-                f"If you can't generate any answers reply with {negative_response!r}. "
-                f"Make sure to provide **only {number_of_correct_answers} correct answers**."
-                "Do not include the question itself. "
-                f"Make sure to provide at least {min_number_of_answers} and "
-                f"at most **{max_number_of_answers}** answers. "
-                # "If the question is too general, try to provide answers that are specific. "
-                # "If the question is too specific, try to provide answers that are general. "
+                "The multiple choice answers should be relevant to the "
+                f"question, but only **{number_of_correct_answers}** should "
+                f"be correct. If you can't generate any answers reply with "
+                f"{negative_response!r}. Make sure to provide **only "
+                f"{number_of_correct_answers} correct answers**. Do not "
+                f"include the question itself. Make sure to provide at least "
+                f"{min_number_of_answers} and at most "
+                f"**{max_number_of_answers}** answers. "
+                # "If the question is too general, "
+                # "try to provide answers that are specific. "
+                # "If the question is too specific, "
+                # "try to provide answers that are general. "
                 "Make sure the answers start with a capital letter "
                 "(for example, 'A) Answer', 'B) Answer', etc.). "
-                "Try to provide answers that are not too similar to each other. "
+                "Try to provide answers that are not "
+                "too similar to each other. "
                 "The generated answers should not be too long or verbose. "
                 f"Question: {question}"
             )
@@ -267,20 +280,21 @@ def generate_questions(
         if verbose:
             print(f"Generating questions for topic {i + 1}: {guessed_topic}")
         query = (
-            "Generate questions from the provided text about the following topic. "
-            f"If you can't generate any questions reply with {negative_response!r}: {guessed_topic}"
+            "Generate questions from the provided "
+            "text about the following topic. "
+            "If you can't generate any questions reply "
+            f"with {negative_response!r}. The Topic: {guessed_topic}"
         )
         response = execute_query(retrieval_qa_chain, query)
-        extracted_questions = extract_questions(response["result"], negative_response)
+        extracted_questions = extract_questions(
+            response["result"], negative_response
+        )
         if verbose:
             process_llm_response(response)
             print(f"Extracted questions: {extracted_questions}")
         questions.append(extracted_questions)
 
     return questions
-
-    # how to query pdf dataset ? https://www.youtube.com/watch?v=5Ghv-F1wF_0
-    # how to identify topics from text ? https://www.youtube.com/watch?v=ZkAFJwi-G98
 
 
 def generate_correct_answers(
@@ -317,15 +331,17 @@ def generate_correct_answers(
 
             # generate the correct answers to the question
             query = (
-                f"Choose the correct answers to the following question about {guessed_topic!r}. "
-                f"If you none of the answers are correct reply with {negative_response!r}. "
-                "Otherwise, provide the correct answers chosen from the list of answers. "
-                "Respond with only the letter corresponding to the correct answers "
-                "(for example, 'A, B'; 'A'; 'B' etc.). "
-                f"Make sure to provide **only {number_of_correct_answers} correct answers**. "
-                "Do not include the question nor the full answers. "
-                f"Question: {question}"
-                f"Answers: {answers_to_question}"
+                f"Choose the correct answers to the following question "
+                f"about {guessed_topic!r}. If you none of the answers are "
+                f"correct reply with {negative_response!r}. Otherwise, "
+                "provide the correct answers chosen from the list of answers. "
+                "Respond with only the letters corresponding to the correct "
+                "answers (for example, 'A, B'; 'A'; 'B' etc.). "
+                f"Make sure to provide **only {number_of_correct_answers} "
+                "correct answers**. Do not include the question nor the full "
+                "answers. \n"
+                f"Question: {question}\n"
+                f"Answers: {answers_to_question}\n"
             )
             response = execute_query(retrieval_qa_chain, query)
 
@@ -401,7 +417,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
 
     # save the questions and answers to a file
-    export_questions_and_answers(guessed_topics, questions, answers, correct_answers)
+    export_questions_and_answers(
+        guessed_topics, questions, answers, correct_answers
+    )
 
     return 0
 

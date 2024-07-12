@@ -1,11 +1,12 @@
-from textwrap import dedent
 import functools
 import re
+from textwrap import dedent
 from typing import Generator, List, Optional
-from langchain_core.documents.base import Document
+
 import google.generativeai as genai
-from nltk.tokenize import sent_tokenize
 import nltk
+from langchain_core.documents.base import Document
+from nltk.tokenize import sent_tokenize
 
 
 @functools.lru_cache
@@ -80,7 +81,9 @@ def extract_questions(llm_response: str, negative_response: str) -> List[str]:
     llm_response_no_markdown = remove_markdown(llm_response)
 
     # remove newlines
-    llm_response_no_boiler_plate = llm_response_no_markdown.replace(":\n\n", ".\n")
+    llm_response_no_boiler_plate = llm_response_no_markdown.replace(
+        ":\n\n", ".\n"
+    )
 
     # remove "(...)" at the end of lines
     llm_response_no_references = re.sub(
@@ -225,7 +228,9 @@ def guess_topic_from_weighted_phrases(
     model = get_google_ai_model(max_output_tokens=5)
     excluded_topics = [topic.lower() for topic in excluded_topics]
     exclude_previous_topics_message = (
-        "Don't include these in your guess:\n\n" + "\n".join(excluded_topics) + "\n\n"
+        "Don't include these in your guess:\n\n"
+        + "\n".join(excluded_topics)
+        + "\n\n"
         if excluded_topics
         else ""
     )
@@ -233,9 +238,10 @@ def guess_topic_from_weighted_phrases(
     prompt = dedent(
         f"""\
         Guess the topic from the following weighted phrases. \
-        Try to be as specific as possible. Reply only with your guess, don't add no boilerplate text. \
+        Try to be as specific as possible. Reply only with your guess, don't \
+        add no boilerplate text. \
         {exclude_previous_topics_message}
-        
+
         Weighted phrases:
         {weighted_phrases}
 

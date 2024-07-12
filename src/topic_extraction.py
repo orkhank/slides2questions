@@ -1,20 +1,13 @@
+import re
 from collections import Counter
 from itertools import chain
 from typing import List, Tuple
+
 import gensim
-
-# import numpy as np
 import spacy
-
-from gensim.models import CoherenceModel, LdaModel
-
-# from gensim.models.wrappers import LdaMallet
 from gensim.corpora import Dictionary
+from gensim.models import CoherenceModel, LdaModel
 from gensim.parsing.preprocessing import preprocess_documents
-
-import re
-
-# import pyLDAvis.gensim
 
 
 def prepare_corpus(
@@ -28,7 +21,8 @@ def prepare_corpus(
 
     # remove words that appear in more than 50% of the documents
     texts = [
-        [word for word in line if frequency[word] / len(texts) <= 0.5] for line in texts
+        [word for word in line if frequency[word] / len(texts) <= 0.5]
+        for line in texts
     ]
 
     # create bigrams
@@ -43,7 +37,10 @@ def prepare_corpus(
 
 
 def extract_topics_in_weighted_phrases(
-    documents: List[str], *, number_of_topics: int = 10, passes_over_corpus: int = 5
+    documents: List[str],
+    *,
+    number_of_topics: int = 10,
+    passes_over_corpus: int = 5
 ) -> List[str]:
     """
     Extract topics from a list of documents using LDA.
@@ -76,7 +73,9 @@ def extract_topics_in_weighted_phrases(
         model=lda_model, texts=texts, dictionary=dictionary, coherence="c_v"
     )
     coherence_lda = coherence_model_lda.get_coherence()
-    print("\nFinished training LDA model with coherence score: ", coherence_lda)
+    print(
+        "\nFinished training LDA model with coherence score: ", coherence_lda
+    )
 
     topics = lda_model.print_topics(num_words=10)
 
@@ -100,7 +99,8 @@ def preprocess_documents_with_spacy(documents, banned_chars):
     for doc in documents:
         article = []
         for w in nlp(doc):
-            # if it's not a stop word or punctuation mark, add it to our article!
+            # if it's not a stop word or punctuation mark,
+            # add it to our article!
             if (
                 w.text != "\n"
                 and not w.is_stop

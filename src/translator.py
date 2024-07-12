@@ -1,7 +1,8 @@
-from typing import Optional
-import googletrans.models
 from abc import ABC, abstractmethod
+from typing import Optional
+
 import googletrans  # type: ignore
+import googletrans.models
 
 
 class Translator(ABC):
@@ -17,7 +18,10 @@ class Google(Translator):
         self.translator = googletrans.Translator()
 
     def translate_text(
-        self, text: str, source_language: str = "auto", target_language: str = "en"
+        self,
+        text: str,
+        source_language: str = "auto",
+        target_language: str = "en",
     ) -> str:
         if target_language not in googletrans.LANGUAGES:
             raise ValueError(f"Language {target_language} is not supported")
@@ -39,7 +43,9 @@ class Google(Translator):
         return googletrans.LANGUAGES
 
     def detect_language(self, text: str) -> str:
-        translated_text = self.translator.translate(text[:min(1000, len(text))])
+        translated_text = self.translator.translate(
+            text[: min(1000, len(text))]
+        )
         return translated_text.src
 
 

@@ -174,7 +174,7 @@ def extract_and_translate_topics(
     )
 
     # convert topics to human-readable format
-    guessed_topics = []
+    guessed_topics: List[str] = []
     for i, weighted_phrase in enumerate(weighted_phrases):
         guessed_topic = guess_topic_from_weighted_phrases(
             weighted_phrase, guessed_topics
@@ -200,7 +200,7 @@ def generate_multi_choice_answers(
     number_of_correct_answers: int = 1,
     verbose: bool = False,
 ) -> List[List[List[str]]]:
-    answers = []
+    answers: List[List[List[str]]] = []
 
     negative_response = (
         "I can't"  # this is the response given when no answers are generated
@@ -211,7 +211,7 @@ def generate_multi_choice_answers(
             answers.append([])
             continue
 
-        answer_list = []
+        answer_list: List[List[str]] = []
         answers.append(answer_list)
 
         for j, question in enumerate(question_list):
@@ -287,7 +287,7 @@ def generate_correct_answers(
     *,
     verbose=False,
 ) -> List[List[Optional[str]]]:
-    correct_answers = []
+    correct_answers: List[List[Optional[str]]] = []
 
     negative_response = "I can't"
 
@@ -299,7 +299,7 @@ def generate_correct_answers(
             correct_answers.append([])
             continue
 
-        correct_answer_list = []
+        correct_answer_list: List[Optional[str]] = []
         correct_answers.append(correct_answer_list)
 
         for j, (question, answers_to_question) in enumerate(

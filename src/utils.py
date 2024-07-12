@@ -4,6 +4,7 @@ from typing import Generator, List, Optional
 from langchain_core.documents.base import Document
 import google.generativeai as genai
 from nltk.tokenize import sent_tokenize
+import nltk
 
 
 @functools.lru_cache
@@ -84,6 +85,8 @@ def extract_questions(llm_response: str, negative_response: str) -> List[str]:
     llm_response_no_references = re.sub(
         r"\(.*\) *\n+", "", llm_response_no_boiler_plate
     )
+
+    nltk.download("punkt", quiet=True, force=False, raise_on_error=True)
 
     return [
         sentence

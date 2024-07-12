@@ -8,12 +8,12 @@ import sys
 from typing import List, Optional, Sequence
 
 from tqdm import tqdm
-from topic_extraction import extract_topics_in_weighted_phrases
 from deep_translator import GoogleTranslator
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_core.documents.base import Document
 from dotenv import load_dotenv
 
+from topic_extraction import extract_topics_in_weighted_phrases
 from translator import get_language
 from utils import (
     export_questions_and_answers,

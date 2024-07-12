@@ -1,3 +1,4 @@
+from textwrap import dedent
 import functools
 import re
 from typing import Generator, List, Optional
@@ -222,15 +223,23 @@ def guess_topic_from_weighted_phrases(
     """
     # Guess the topic from the weighted phrases using the Google AI model
     model = get_google_ai_model(max_output_tokens=5)
-    prompt = (
-        "Guess the topic from the following weighted phrases. "
-        f"Try to be as specific as possible. Weighted phrases:\n\n{weighted_phrases}\n\n"
-        + (
-            f"Excluded topics (Don't include these in your guess):\n\n{'\n'.join(excluded_topics)}\n\n"
-            if excluded_topics
-            else ""
-        )
-        + "Topic (reply only with your guess, don't add no boilerplate text):"
+    excluded_topics = [topic.lower() for topic in excluded_topics]
+    exclude_previous_topics_message = (
+        "Don't include these in your guess:\n\n" + "\n".join(excluded_topics) + "\n\n"
+        if excluded_topics
+        else ""
+    )
+
+    prompt = dedent(
+        f"""\
+        Guess the topic from the following weighted phrases. \
+        Try to be as specific as possible. Reply only with your guess, don't add no boilerplate text. \
+        {exclude_previous_topics_message}
+        
+        Weighted phrases:
+        {weighted_phrases}
+
+        Topic:"""
     )
 
     response = model.generate_content(prompt)

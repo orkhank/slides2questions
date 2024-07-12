@@ -150,17 +150,7 @@ def extract_and_translate_topics(
 
     # translate text to English if it is not already in English
     if (source_language := get_language("\n".join(page_contents))) != "english":
-        translator = GoogleTranslator()
-        translated_docs = [
-            translator.translate(doc, target="en")
-            for doc in tqdm(
-                page_contents,
-                desc=f"Translating text from {source_language.capitalize()} to English",
-                unit="page",
-                len=len(page_contents),
-            )
-        ]
-        page_contents = translated_docs
+        page_contents = translate_page_contents(page_contents, source_language)
     elif verbose:
         print("Text is already in English (no translation needed)")
 
@@ -188,6 +178,20 @@ def extract_and_translate_topics(
     # cache_topics(docs, guessed_topics)
 
     return guessed_topics
+
+
+def translate_page_contents(page_contents, source_language):
+    translator = GoogleTranslator()
+    translated_docs = [
+        translator.translate(doc, target="en")
+        for doc in tqdm(
+            page_contents,
+            desc=f"Translating text from {source_language.capitalize()} to English",
+            unit="page",
+        )
+    ]
+    page_contents = translated_docs
+    return page_contents
 
 
 def generate_multi_choice_answers(

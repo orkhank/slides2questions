@@ -16,10 +16,10 @@ from tqdm import tqdm
 from rag import execute_query, get_retrieval_qa_chain, process_llm_response
 from topic_extraction import extract_topics_in_weighted_phrases
 from utils import (
+    detect_language,
     export_questions_and_answers,
     extract_answers,
     extract_questions,
-    get_language,
     get_page_contents,
     guess_topic_from_weighted_phrases,
 )
@@ -157,7 +157,7 @@ def extract_and_translate_topics(
 
     # translate text to English if it is not already in English
     if (
-        source_language := get_language("\n".join(page_contents))
+        source_language := detect_language("\n".join(page_contents))
     ) != "english":
         page_contents = translate_page_contents(page_contents, source_language)
     elif verbose:

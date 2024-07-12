@@ -254,7 +254,7 @@ def guess_topic_from_weighted_phrases(
     return response.text
 
 
-def get_language(text: str) -> str:
+def detect_language(text: str) -> str:
     translator = googletrans.Translator()
     language = translator.translate(text[: min(1000, len(text))]).src
 

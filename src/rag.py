@@ -8,6 +8,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents.base import Document
+from langchain_core.runnables.config import RunnableConfig
 from langchain_google_genai import (
     GoogleGenerativeAI,
     GoogleGenerativeAIEmbeddings,
@@ -99,7 +100,9 @@ def execute_query(
     qa_chain_openai: BaseRetrievalQA, query: str
 ) -> Dict[str, Any]:
     chain_type_kwargs = {"query": query}
-    llm_response = qa_chain_openai.invoke(chain_type_kwargs)
+    llm_response = qa_chain_openai.invoke(
+        chain_type_kwargs, config=RunnableConfig(max_concurrency=1)
+    )
     return llm_response
 
 

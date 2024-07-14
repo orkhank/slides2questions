@@ -3,8 +3,11 @@ from textwrap import dedent
 from typing import Generator, List, Optional
 
 import google.generativeai as genai
-import googletrans  # type: ignore
+from deep_translator import GoogleTranslator
+
+# import googletrans  # type: ignore
 from langchain_core.documents.base import Document
+from tqdm import tqdm
 
 
 @functools.lru_cache
@@ -127,3 +130,18 @@ def detect_language(text: str) -> str:
 
     # map language code to full name
     return googletrans.LANGUAGES[language]
+
+
+def translate_page_contents(page_contents, source_language):
+    translator = GoogleTranslator()
+    translated_docs = [
+        translator.translate(doc, target="en")
+        for doc in tqdm(
+            page_contents,
+            desc=f"Translating text from {source_language.capitalize()} "
+            "to English",
+            unit="page",
+        )
+    ]
+    page_contents = translated_docs
+    return page_contents

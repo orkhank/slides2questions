@@ -8,11 +8,9 @@ import sys
 import time
 from typing import List, Optional, Sequence
 
-from deep_translator import GoogleTranslator
 from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_core.documents.base import Document
-from tqdm import tqdm
 
 from generation import (
     generate_correct_answers,
@@ -26,6 +24,7 @@ from utils import (
     detect_language,
     get_page_contents,
     guess_topic_from_weighted_phrases,
+    translate_page_contents,
 )
 
 
@@ -220,21 +219,6 @@ def extract_and_translate_topics(
     # cache_topics(docs, guessed_topics)
 
     return guessed_topics
-
-
-def translate_page_contents(page_contents, source_language):
-    translator = GoogleTranslator()
-    translated_docs = [
-        translator.translate(doc, target="en")
-        for doc in tqdm(
-            page_contents,
-            desc=f"Translating text from {source_language.capitalize()} "
-            "to English",
-            unit="page",
-        )
-    ]
-    page_contents = translated_docs
-    return page_contents
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:

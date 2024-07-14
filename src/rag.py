@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from langchain.chains.retrieval_qa.base import BaseRetrievalQA, RetrievalQA
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFDirectoryLoader
-from langchain_community.vectorstores.faiss import FAISS
+from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents.base import Document
 from langchain_google_genai import (
     GoogleGenerativeAI,
@@ -15,12 +15,10 @@ from langchain_google_genai import (
 
 
 def create_vector_store(texts, embeddings):
-    batch_size = 100
-    vector_store = FAISS.from_documents(texts[:batch_size], embeddings)
-
-    for i in range(batch_size, len(texts), batch_size):
-        vector_store.add_documents(texts[i : i + batch_size])
-    return vector_store
+    vectore_store = Chroma.from_documents(
+        texts, embeddings  # , vector_size=768, chunk_size=1000
+    )
+    return vectore_store
 
 
 def get_retrieval_qa_chain(

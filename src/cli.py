@@ -51,6 +51,14 @@ def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "--output",
+        "-o",
+        help="Output file for the questions and answers",
+        type=str,
+        default="questions_and_answers.json",
+    )
+
+    parser.add_argument(
         "--verbose",
         "-v",
         action="store_true",
@@ -420,7 +428,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     # save the questions and answers to a file
     export_questions_and_answers(
-        guessed_topics, questions, answers, correct_answers
+        guessed_topics,
+        questions,
+        answers,
+        correct_answers,
+        file_path=args.output,
     )
 
     return 0

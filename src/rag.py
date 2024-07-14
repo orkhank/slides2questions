@@ -23,7 +23,12 @@ def create_vector_store(texts, embeddings):
     return vector_store
 
 
-def get_retrieval_qa_chain(documents: List[Document]) -> BaseRetrievalQA:
+def get_retrieval_qa_chain(
+    documents: List[Document],
+    *,
+    llm_model_name: str = "gemini-1.5-flash-latest",
+    max_retries: int = 6,
+) -> BaseRetrievalQA:
     """
     Get a retrieval QA chain for interacting with the provided documents.
 
@@ -58,11 +63,12 @@ def get_retrieval_qa_chain(documents: List[Document]) -> BaseRetrievalQA:
 
     qa_chain_openai = RetrievalQA.from_chain_type(
         llm=GoogleGenerativeAI(
-            model="gemini-1.5-flash-latest",
+            model=llm_model_name,
             client_options=None,
             transport=None,
             additional_headers=None,
             client=None,
+            max_retries=max_retries,
         ),
         chain_type="stuff",
         retriever=retrieval_engine,

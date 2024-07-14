@@ -127,6 +127,21 @@ def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         default=1,
     )
 
+    llm_options = parser.add_argument_group("LLM options")
+
+    llm_options.add_argument(
+        "--llm-model",
+        help="LLM model to use for generating questions and answers",
+        type=str,
+        default="gemini-1.5-flash-latest",
+    )
+    llm_options.add_argument(
+        "--max-retries",
+        help="The maximum number of retries to make when generating.",
+        type=int,
+        default=6,
+    )
+
     args = parser.parse_args(argv)
 
     # validate arguments
@@ -398,7 +413,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
 
     # save text to a dataset
-    retrieval_qa_chain = get_retrieval_qa_chain(docs)
+    retrieval_qa_chain = get_retrieval_qa_chain(
+        docs, llm_model_name=args.llm_model, max_retries=args.max_retries
+    )
 
     questions = generate_questions(
         guessed_topics,

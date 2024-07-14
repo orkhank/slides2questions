@@ -104,10 +104,10 @@ def guess_topic_from_weighted_phrases(
     )
 
     prompt = dedent(
-        f"""\
-        Guess the topic from the following weighted phrases. \
-        Try to be as specific as possible. Reply only with your guess, don't \
-        add no boilerplate text. \
+        f"""
+        Guess the topic from the following weighted phrases.
+        Try to be as specific as possible.
+        Reply only with your guess, don't add no boilerplate text.
         {exclude_previous_topics_message}
 
         Weighted phrases:

@@ -168,6 +168,9 @@ def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
             "or equal to the maximum number of answers"
         )
 
+    if os.path.isdir(args.pdf_directory) is False:
+        parser.error("The specified PDF directory does not exist")
+
     return args
 
 
@@ -400,6 +403,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         extract_images=args.extract_text_from_images,
     )
     docs = pdf_loader.load()
+
+    if not docs:
+        print("No PDF files found")
+        return 1
 
     if args.verbose:
         # print information about the PDF

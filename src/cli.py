@@ -5,6 +5,7 @@ Generate questions from PDF file.
 import argparse
 import os
 import sys
+import time
 from typing import List, Optional, Sequence
 
 from deep_translator import GoogleTranslator
@@ -180,6 +181,7 @@ def extract_and_translate_topics(
     number_of_topics: int = 10,
     passes_over_corpus: int = 5,
     verbose: bool = False,
+    sleep_time: int = 1,
 ) -> List[str]:
     page_contents = [page_content for page_content in get_page_contents(docs)]
 
@@ -211,6 +213,8 @@ def extract_and_translate_topics(
             print(f"Educated guess for topic {i + 1}: {guessed_topic}")
         guessed_topics.append(guessed_topic)
 
+        time.sleep(sleep_time)
+
     # TODO: cache topics
     # cache_topics(docs, guessed_topics)
 
@@ -241,6 +245,7 @@ def generate_multi_choice_answers(
     max_number_of_answers: int = 5,
     number_of_correct_answers: int = 1,
     verbose: bool = False,
+    sleep_time: int = 1,
 ) -> List[List[List[str]]]:
     answers: List[List[List[str]]] = []
 
@@ -291,6 +296,8 @@ def generate_multi_choice_answers(
                 print(f"Multiple choice answers: {answer}")
             answer_list.append(answer)
 
+            time.sleep(sleep_time)
+
     return answers
 
 
@@ -299,6 +306,7 @@ def generate_questions(
     retrieval_qa_chain,
     *,
     verbose=False,
+    sleep_time=1,
 ):
     negative_response = "I can't"
 
@@ -321,6 +329,7 @@ def generate_questions(
             process_llm_response(response)
             print(f"Extracted questions: {extracted_questions}")
         questions.append(extracted_questions)
+        time.sleep(sleep_time)
 
     return questions
 
@@ -333,6 +342,7 @@ def generate_correct_answers(
     retrieval_qa_chain,
     *,
     verbose=False,
+    sleep_time=1,
 ) -> List[List[Optional[str]]]:
     correct_answers: List[List[Optional[str]]] = []
 
@@ -385,6 +395,8 @@ def generate_correct_answers(
                 print(f"Correct answer: {correct_answer}")
 
             correct_answer_list.append(correct_answer)
+
+            time.sleep(sleep_time)
 
     return correct_answers
 

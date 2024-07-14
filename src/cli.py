@@ -10,6 +10,7 @@ from typing import List, Optional, Sequence
 
 from deep_translator import GoogleTranslator
 from dotenv import load_dotenv
+from google.api_core.exceptions import ResourceExhausted
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_core.documents.base import Document
 from tqdm import tqdm
@@ -321,14 +322,19 @@ def generate_questions(
             "If you can't generate any questions reply "
             f"with {negative_response!r}. The Topic: {guessed_topic}"
         )
-        response = execute_query(retrieval_qa_chain, query)
-        extracted_questions = extract_questions(
-            response["result"], negative_response
-        )
-        if verbose:
-            process_llm_response(response)
-            print(f"Extracted questions: {extracted_questions}")
-        questions.append(extracted_questions)
+        try:
+            response = execute_query(retrieval_qa_chain, query)
+            extracted_questions = extract_questions(
+                response["result"], negative_response
+            )
+            if verbose:
+                process_llm_response(response)
+                print(f"Extracted questions: {extracted_questions}")
+            questions.append(extracted_questions)
+        except ResourceExhausted:
+            print(f"Failed to generate questions for topic {guessed_topic}")
+            questions.append([])
+
         time.sleep(sleep_time)
 
     return questions

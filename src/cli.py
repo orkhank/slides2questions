@@ -5,27 +5,19 @@ Generate questions from PDF file.
 import argparse
 import os
 import sys
-import time
-from typing import List, Optional, Sequence
+from typing import Optional, Sequence
 
 from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFDirectoryLoader
-from langchain_core.documents.base import Document
 
 from generation import (
     generate_correct_answers,
     generate_multi_choice_answers,
     generate_questions,
+    extract_and_translate_topics,
 )
 from rag import get_retrieval_qa_chain
 from response_processing import export_questions_and_answers
-from topic_extraction import extract_topics_in_weighted_phrases
-from utils import (
-    detect_language,
-    get_page_contents,
-    guess_topic_from_weighted_phrases,
-    translate_page_contents,
-)
 
 
 def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
@@ -173,52 +165,6 @@ def get_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         parser.error("The specified PDF directory does not exist")
 
     return args
-
-
-def extract_and_translate_topics(
-    docs: List[Document],
-    *,
-    number_of_topics: int = 10,
-    passes_over_corpus: int = 5,
-    verbose: bool = False,
-    sleep_time: int = 1,
-) -> List[str]:
-    page_contents = [page_content for page_content in get_page_contents(docs)]
-
-    # translate text to English if it is not already in English
-    if (
-        source_language := detect_language("\n".join(page_contents))
-    ) != "english":
-        page_contents = translate_page_contents(page_contents, source_language)
-    elif verbose:
-        print("Text is already in English (no translation needed)")
-
-    # extract topics from text
-    if verbose:
-        print("Extracting topics from text")
-    weighted_phrases = extract_topics_in_weighted_phrases(
-        page_contents,
-        number_of_topics=number_of_topics,
-        passes_over_corpus=passes_over_corpus,
-    )
-
-    # convert topics to human-readable format
-    guessed_topics: List[str] = []
-    for i, weighted_phrase in enumerate(weighted_phrases):
-        guessed_topic = guess_topic_from_weighted_phrases(
-            weighted_phrase, guessed_topics
-        )
-        guessed_topic = guessed_topic.replace("\n", "")
-        if verbose:
-            print(f"Educated guess for topic {i + 1}: {guessed_topic}")
-        guessed_topics.append(guessed_topic)
-
-        time.sleep(sleep_time)
-
-    # TODO: cache topics
-    # cache_topics(docs, guessed_topics)
-
-    return guessed_topics
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
